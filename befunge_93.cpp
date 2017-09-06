@@ -118,6 +118,11 @@ void Befunge::interpreter() {
         a = pop_stack();
         push_stack(a/b);
       break;
+      case '%':
+        b = pop_stack();
+        a = pop_stack();
+        push_stack(a%b);
+      break;
       case '`':
         b = pop_stack();
         a = pop_stack();
