@@ -11,7 +11,7 @@ private:
   int w, h;
   int x, y, d;
   bool skip, code;
-  stack<int> st;
+  vector<int> stack;
   string o;
   
   mt19937 mt;
@@ -35,17 +35,19 @@ Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), skip(false), code(false) {
 
 void Befunge::set_line(int i, string s) {
   h = max(h, i%25+1);
-  w = min(80, max(w, (int)s.size()));
-  for(int j=0;j<w;j++)c[i][j] = s[j];
+  int k = min(80, (int)s.size());
+  for(int j=0;j<80;j++)c[i][j] = ' ';
+  for(int j=0;j<k;j++)c[i][j] = s[j];
+  w = max(w, k);
 }
 
 void Befunge::push_stack(int i) {
-  st.push(i);
+  stack.push_back(i);
 }
 
 int Befunge::pop_stack() {
-  int s = st.top();
-  st.pop();
+  int s = stack.back();
+  stack.pop_back();
   return s;
 }
 
@@ -82,7 +84,7 @@ void Befunge::interpreter() {
       break;
       case '"':code = true;break;
       case '&':
-        cin>>a;
+        std::cin>>a;
         push_stack(a);
       break;
       case '~':
@@ -175,16 +177,19 @@ void Befunge::show() {
   for(int i=0;i<h;i++) {
     for(int j=0;j<w;j++) {
       if(i==y&&j==x)cout<<"\x1b[43m";
-      cout<<c[i][j];
+      if(isprint(c[i][j]))cout<<c[i][j];
+      else cout<<'?';
       if(i==y&&j==x)cout<<"\x1b[0m";
     }
     cout<<endl;
   }
-  cout<<o<<endl;
+  for(int i=0;i<(int)stack.size();i++)cout<<stack.at(i)<<' ';
+  cout<<endl<<o<<endl;
 }
 
 void Befunge::erase_show() {
-  cout<<"\x1b["+to_string(h+1)+"A";
+  system("clear");
+  //cout<<"\x1b["+to_string(h+2)+"A";
 }
 
 void Befunge::output(string s) {
@@ -193,11 +198,22 @@ void Befunge::output(string s) {
 
 Befunge befunge;
 
-int main() {
+int main(int argc, char** argv) {
   
+  string filename = argv[1];
+  
+  ifstream ifs(filename);
+  
+  if (ifs.fail()) {
+    cerr<<"error"<<endl;
+    return -1;
+  }
+   
   string s;
-  for(int i=0;i<25&&getline(cin, s);i++)befunge.set_line(i, s);
+  for(int i=0;i<25&&getline(ifs, s);i++)befunge.set_line(i, s);
   
   befunge.interpreter();
-  //befunge.show();
+  
+  return 0;
 }
+
