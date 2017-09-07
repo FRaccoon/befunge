@@ -7,7 +7,7 @@ private:
   const int dx[4] = {1, 0,-1, 0};
   const int dy[4] = {0, 1, 0,-1};
   
-  char c[25][80];
+  int c[25][80];
   int w, h;
   int x, y, d;
   bool skip, code;
@@ -37,7 +37,7 @@ void Befunge::set_line(int i, string s) {
   h = max(h, i%25+1);
   int k = min(80, (int)s.size());
   for(int j=0;j<80;j++)c[i][j] = ' ';
-  for(int j=0;j<k;j++)c[i][j] = s[j];
+  for(int j=0;j<k;j++)c[i][j] = (int)s[j];
   w = max(w, k);
 }
 
@@ -156,8 +156,7 @@ void Befunge::interpreter() {
       case 'p':
         b = pop_stack();
         a = pop_stack();
-        e = (char)pop_stack();
-        c[b][a] = e;
+        c[b][a] = pop_stack();
       break;
     }
   }
@@ -177,7 +176,7 @@ void Befunge::show() {
   for(int i=0;i<h;i++) {
     for(int j=0;j<w;j++) {
       if(i==y&&j==x)cout<<"\x1b[43m";
-      if(isprint(c[i][j]))cout<<c[i][j];
+      if(isprint((char)c[i][j]))cout<<(char)c[i][j];
       else cout<<'?';
       if(i==y&&j==x)cout<<"\x1b[0m";
     }
