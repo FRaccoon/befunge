@@ -13,6 +13,7 @@ private:
   bool skip, code;
   vector<int> stack;
   string o;
+  int ms;
   
   mt19937 mt;
   
@@ -25,10 +26,11 @@ public:
   void show();
   void erase_show();
   void output(string s);
+  void set_delay(int s);
   
 };
 
-Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), skip(false), code(false) {
+Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), skip(false), code(false), stack(), o(), ms(50) {
   random_device rnd;
   mt.seed(rnd());
 }
@@ -84,11 +86,17 @@ void Befunge::interpreter() {
       break;
       case '"':code = true;break;
       case '&':
-        std::cin>>a;
+        for(cin>>a;!cin;cin>>a) {
+          cin.clear();
+          cin.ignore();
+        }
         push_stack(a);
       break;
       case '~':
-        cin>>e;
+        for(cin>>e;!cin;cin>>e) {
+          cin.clear();
+          cin.ignore();
+        }
         push_stack((int)e);
       break;
       case '.':
@@ -166,7 +174,7 @@ void Befunge::interpreter() {
   x %= w;
   y %= h;
   
-  usleep(50000);
+  usleep(ms*1000);
   erase_show();
   
   interpreter();
@@ -195,16 +203,25 @@ void Befunge::output(string s) {
   o += s;
 }
 
+void Befunge::set_delay(int s) {
+  ms = s;
+}
+
 Befunge befunge;
 
 int main(int argc, char** argv) {
   
-  string filename = argv[1];
+  string filename;
+  for(int i=1;i<argc;i++) {
+    if(!strcmp(argv[i], "-delay")) {
+      if(++i<argc) befunge.set_delay(stoi(argv[i]));
+    }else filename = argv[i];
+  }
   
   ifstream ifs(filename);
   
   if (ifs.fail()) {
-    cerr<<"error"<<endl;
+    cerr<<"\x1b[1m\x1b[31m"<<"fatal error:"<<"\x1b[0m"<<" no input files"<<endl;
     return -1;
   }
    
