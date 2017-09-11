@@ -7,7 +7,7 @@ private:
   const int dx[4] = {1, 0,-1, 0};
   const int dy[4] = {0, 1, 0,-1};
   
-  int c[25][80];
+  vector<vector<int>> c;
   int w, h;
   int x, y, d;
   bool code;
@@ -19,7 +19,8 @@ private:
   
 public:
   Befunge();
-  void set_line(int i, string s);
+  void push_line(string s);
+  void fill_space();
   void push_stack(int i);
   int pop_stack();
   void interpreter();
@@ -36,12 +37,18 @@ Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), code(false), stack(), o(), ms(
   mt.seed(rnd());
 }
 
-void Befunge::set_line(int i, string s) {
-  h = max(h, i%25+1);
-  int k = min(80, (int)s.size());
-  for(int j=0;j<80;j++)c[i][j] = ' ';
-  for(int j=0;j<k;j++)c[i][j] = (int)s[j];
-  w = max(w, k);
+void Befunge::push_line(string s) {
+  vector<int> a;
+  for(int i=0;i<(int)s.size();i++)a.push_back( (int)s[i] );
+  c.push_back(a);
+  w = max(w, (int)s.size());
+  h++;
+}
+
+void Befunge::fill_space() {
+  for(int i=0;i<(int)c.size();i++) {
+    for(int j=(int)c[i].size();j<w;j++)c[i].push_back( (int)' ' );
+  }
 }
 
 void Befunge::push_stack(int i) {
@@ -57,14 +64,14 @@ int Befunge::pop_stack() {
 void Befunge::interpreter() {
   show();
   
+  int a, b;
+  char e;
+  
   if(code) {
     if(c[y][x] == '"')code = false;
     else push_stack((int)c[y][x]);
     
   }else {
-    int a, b;
-    char e;
-    
     switch(c[y][x]) {
       case '>':d = 0;break;
       case 'v':d = 1;break;
@@ -173,8 +180,12 @@ void Befunge::interpreter() {
     
   }
   
+  a = x;
+  b = y;
   if(code)step();
-  else while(step()){}
+  else while(step()) {
+    if(a==x && b==y)return ;
+  }
   
   usleep(ms*1000);
   erase_show();
@@ -236,7 +247,8 @@ int main(int argc, char** argv) {
   }
    
   string s;
-  for(int i=0;i<25&&getline(ifs, s);i++)befunge.set_line(i, s);
+  while(getline(ifs, s))befunge.push_line(s);
+  befunge.fill_space();
   
   befunge.interpreter();
   
