@@ -10,7 +10,7 @@ private:
   int c[25][80];
   int w, h;
   int x, y, d;
-  bool skip, code;
+  bool code;
   vector<int> stack;
   string o;
   int ms;
@@ -27,10 +27,11 @@ public:
   void erase_show();
   void output(string s);
   void set_delay(int s);
+  bool step();
   
 };
 
-Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), skip(false), code(false), stack(), o(), ms(50) {
+Befunge::Befunge(): w(0), h(0), x(0), y(0), d(0), code(false), stack(), o(), ms(50) {
   random_device rnd;
   mt.seed(rnd());
 }
@@ -55,13 +56,15 @@ int Befunge::pop_stack() {
 
 void Befunge::interpreter() {
   show();
-  if(skip) skip = false;
-  else if(code) {
-    if(c[y][x]=='"')code = false;
+  
+  if(code) {
+    if(c[y][x] == '"')code = false;
     else push_stack((int)c[y][x]);
+    
   }else {
     int a, b;
     char e;
+    
     switch(c[y][x]) {
       case '>':d = 0;break;
       case 'v':d = 1;break;
@@ -79,7 +82,7 @@ void Befunge::interpreter() {
       break;
       case '?':d = mt()%4;break;
       case ' ':break;
-      case '#':skip = true;break;
+      case '#':step();break;
       case '@':return;break;
       case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
         push_stack(c[y][x]-'0');
@@ -167,12 +170,11 @@ void Befunge::interpreter() {
         c[b][a] = pop_stack();
       break;
     }
+    
   }
   
-  x += w+dx[d];
-  y += h+dy[d];
-  x %= w;
-  y %= h;
+  if(code)step();
+  else while(step()){}
   
   usleep(ms*1000);
   erase_show();
@@ -205,6 +207,14 @@ void Befunge::output(string s) {
 
 void Befunge::set_delay(int s) {
   ms = s;
+}
+
+bool Befunge::step() {
+  x += w+dx[d];
+  y += h+dy[d];
+  x %= w;
+  y %= h;
+  return c[y][x] == ' ';
 }
 
 Befunge befunge;
