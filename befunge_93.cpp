@@ -64,7 +64,7 @@ class Befunge {
 
 };
 
-Befunge::Befunge(): code(), out(), stack(), w(0), h(0), x(0), y(0), d(0), lit(false), px(0), py(0), sw(0), oh(0), psl(0), ms(50) {
+Befunge::Befunge(): code(), out(), stack(), w(0), h(0), x(0), y(0), d(0), lit(false), px(0), py(0), sw(0), oh(0), psl(0), ms(10) {
   random_device rnd;
   mt.seed(rnd());
 
@@ -163,7 +163,7 @@ void Befunge::update_show_code() {
 
   px = x;
   py = y;
-  cout<<"\x1b["<<h+oh+3<<";0H"<<x<<','<<y;
+  //cout<<"\x1b["<<h+oh+4<<";0H"<<x<<','<<y;
 }
 
 void Befunge::show_stack() {
@@ -255,6 +255,7 @@ void Befunge::interpreter() {
           step();
           break;
         case '@':
+          cout<<"\x1b["<<h+oh+4<<";0H";
           return;
           break;
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
